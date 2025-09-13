@@ -16,6 +16,14 @@ class UserAccountsRepository extends ServiceEntityRepository
         parent::__construct($registry, UserAccounts::class);
     }
 
+    public function findByDocument(string $document): ?UserAccounts{
+        return $this->createQueryBuilder('u')
+                    ->andWhere('u.document = :document')
+                    ->setParameter('document', $document)
+                    ->getQuery()
+                    ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return UserAccounts[] Returns an array of UserAccounts objects
     //     */

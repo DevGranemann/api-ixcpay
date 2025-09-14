@@ -5,8 +5,11 @@ namespace App\Entity;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserAccountsRepository::class)]
+#[UniqueEntity(fields: ['document'], message: 'Já existe uma conta registrada com este CPF/CNPJ.')]
+#[UniqueEntity(fields: ['email'], message: 'Já existe uma conta registrada com este email.')]
 class UserAccounts
 {
     #[ORM\Id]

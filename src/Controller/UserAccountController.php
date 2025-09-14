@@ -12,10 +12,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserAccountController extends AbstractController {
 
-    #[Route('api/useraccount', name: '', methods:'POST')]
+    #[Route('api/useraccounts', name: '', methods:'POST')]
     public function createUserAccount(
         Request $request,
-        EntityManagerInterface $em): JsonResponse {
+        EntityManagerInterface $em): JsonResponse{
 
         $data = json_decode($request->getContent(), true);
 
@@ -37,7 +37,29 @@ class UserAccountController extends AbstractController {
         $user->setDocument($data['document']);
         $user->setEmail($data['email']);
         $user->setBalance(0.0);
-        $user->setPassword($data['password']); // implementar hash para senha depois, se der tem
+        $user->setPassword($data['password']); // implementar hash para senha depois, se der tempo
+
+        $existingUserByDoc = $em->getRepository(UserAccounts::class)
+            ->findOneBy([
+                'document' => $data['document']
+            ]);
+
+        if ($existingUserByDoc) {
+            return new JsonResponse([
+                'Error' => 'Já existe um usuário com este CPF/CNPJ!'
+            ], 400);
+        }
+
+        $existingUserByEmail = $em->getRepository(UserAccounts::class)
+            ->findOneBy([
+                'email' => $data['email']
+            ]);
+
+        if ($existingUserByEmail) {
+            return new JsonResponse([
+                'Error' => 'Já existe um usuário com este e-mail!'
+            ], 400);
+        }
 
         $em->persist($user);
         $em->flush();

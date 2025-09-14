@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Transactions;
 use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +35,7 @@ class TransferService {
         $fromIsCnpj = strlen($fromUserAccounts->getDocument()) === 14;
 
         if ($fromIsCnpj) {
-            throw new \Exception("Este usuário não pode realizar transações.");
+            throw new \Exception("Este usuário não pode realizar transações desta natureza.");
         }
 
         $this->em->beginTransaction();
@@ -42,6 +43,12 @@ class TransferService {
         try {
             $fromUserAccounts->debit($amount);
             $toUser->credit($amount);
+
+            // para armazenar no banco
+            $transaction = new Transactions();
+            $transaction->setFromUser($fromUserAccounts);
+            $transaction->setToUser($toUser);
+            $transaction->setAmount($amount);
 
             $this->em->persist($fromUserAccounts);
             $this->em->persist($toUser);

@@ -107,4 +107,21 @@ class UserAccounts
 
         return $this;
     }
+
+    public function debit(float $amount): void{
+
+        if ($amount <= 0) {
+            throw new \Exception("O valor da transferência deve ser maior do que 0");
+        }
+
+        if ($amount > $this->balance) {
+            throw new \Exception("Saldo insuficiente.");
+        }
+        $this->balance -= $amount;
+    }
+
+    public function credit($amount): void{
+
+        $this->balance += $amount;
+    }
 }

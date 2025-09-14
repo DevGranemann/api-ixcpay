@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserAccountsRepository::class)]
 class UserAccounts
@@ -22,14 +23,14 @@ class UserAccounts
     #[ORM\Column(length: 14, unique: true)]
     private ?string $document = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, unique: true)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
     #[ORM\Column]
-    private ?float $balance = null;
+    private ?float $balance = 0.0;
 
     public function getId(): ?int
     {

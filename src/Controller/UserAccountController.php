@@ -72,5 +72,24 @@ class UserAccountController extends AbstractController {
         ], 201);
     }
 
-    // Criar novo controlador para listar informações sobre uma conta
+    #[Route('/api/useraccounts/{id}', name: 'get_user_account', methods: ['GET'])]
+    public function getUserAccount(int $id, UserAccountsRepository $userRepo): JsonResponse
+    {
+        $userAccount = $userRepo->find($id);
+
+        if (!$userAccount) {
+            return new JsonResponse([
+                'Error' => 'Conta não encontrada.'
+            ], 404);
+        }
+
+        return new JsonResponse([
+            'id' => $userAccount->getId(),
+            'user_type' => $userAccount->getUserType(),
+            'full_name' => $userAccount->getFullName(),
+            'document' => $userAccount->getDocument(),
+            'email' => $userAccount->getEmail(),
+            'balance' => $userAccount->getBalance(),
+        ], 200);
+    }
 }

@@ -3,12 +3,12 @@
 namespace App\Service;
 
 use App\Entity\Transactions;
-use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\UserAccounts;
 
-class DepositService
-{
+class TakeOutAmount {
+
     private EntityManagerInterface $em;
     private UserAccountsRepository $accountsRepository;
 
@@ -19,34 +19,36 @@ class DepositService
     }
 
     /**
-     * Realiza depósito em uma conta existente
+     * Saque em uma conta existente
      *
      * @param int $accountId
      * @param float $amount
      * @return Transactions
      * @throws \Exception
-    */
+     */
+    public function takeOutValue(int $accountId, float $amount): Transactions{
 
-    public function deposit(int $accountId, float $amount): Transactions
-    {
         if ($amount <= 0) {
-            throw new \Exception("Valor inválido para depósito");
+            throw new \Exception("Valor inválido para saque");
         }
 
         /** @var UserAccounts|null $account */
         $account = $this->accountsRepository->find($accountId);
 
-        if (!$account) {
+        if (!$accountId) {
             throw new \Exception("Conta não encontrada");
         }
 
-        $account->setBalance($account->getBalance() + $amount);
+        if ($account->getBalance() < $amount) {
+            throw new \Exception("Saldo insuficiente para realizar o saque");
+        }
 
-        // Registro
+        $account->setBalance($account->getBalance() - $amount);
+
         $transaction = new Transactions();
         $transaction->setFromUser($account);
         $transaction->setToUser($account);
-        $transaction->setAmount($amount);
+        $transaction->setAmount(-$amount);
 
         $this->em->persist($account);
         $this->em->persist($transaction);
@@ -54,4 +56,5 @@ class DepositService
 
         return $transaction;
     }
+
 }

@@ -6,7 +6,7 @@ use App\Entity\Transactions;
 use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
-
+use App\Enum\TransactionsType;
 class TransferService {
 
     private EntityManagerInterface $em;
@@ -46,6 +46,7 @@ class TransferService {
 
             // para armazenar no banco
             $transaction = new Transactions();
+            $transaction->setType(TransactionsType::TRANSFER);
             $transaction->setFromUser($fromUserAccounts);
             $transaction->setToUser($toUser);
             $transaction->setAmount($amount);

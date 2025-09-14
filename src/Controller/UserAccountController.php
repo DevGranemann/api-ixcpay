@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserAccountController extends AbstractController {
 
-    #[Route('api/useraccounts', name: '', methods:'POST')]
+    #[Route('api/useraccounts', name: 'create_user_account', methods:'POST')]
     public function createUserAccount(
         Request $request,
         EntityManagerInterface $em): JsonResponse{
@@ -71,4 +71,6 @@ class UserAccountController extends AbstractController {
             'email' => $user->getEmail()
         ], 201);
     }
+
+    // Criar novo controlador para listar informações sobre uma conta
 }

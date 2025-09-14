@@ -69,7 +69,7 @@ class TransferController extends AbstractController {
         }
     }
 
-    #[Route('/api/transfers/{document}', name: 'user_transactions', methods: ['GET'])]
+    #[Route('/api/transfers/{document}', name: 'list_user_transactions', methods: ['GET'])]
     public function listUserTransactions(string $document, Request $request): JsonResponse
     {
         // Pega paginação da query string (default: page=1, limit=10)

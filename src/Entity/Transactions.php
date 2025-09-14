@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TransactionsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Enum\TransactionsType;
 
 #[ORM\Entity(repositoryClass: TransactionsRepository::class)]
 class Transactions
@@ -26,6 +27,9 @@ class Transactions
 
     #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $createdAt;
+
+    #[ORM\Column(type: 'string', enumType: TransactionsType::class)]
+    private TransactionsType $type;
 
     public function __construct()
     {
@@ -73,5 +77,14 @@ class Transactions
     public function getCreatedAt(): \DateTimeInterface
     {
         return $this->createdAt;
+    }
+
+    public function getType(): TransactionsType{
+        return $this->type;
+    }
+
+    public function setType(TransactionsType $type): static{
+        $this->type = $type;
+        return $this;
     }
 }

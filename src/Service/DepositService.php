@@ -6,6 +6,7 @@ use App\Entity\Transactions;
 use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Enum\TransactionsType;
 
 class DepositService
 {
@@ -47,6 +48,7 @@ class DepositService
         $transaction->setFromUser($account);
         $transaction->setToUser($account);
         $transaction->setAmount($amount);
+        $transaction->setType(TransactionsType::DEPOSIT);
 
         $this->em->persist($account);
         $this->em->persist($transaction);

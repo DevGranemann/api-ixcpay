@@ -6,8 +6,9 @@ use App\Entity\Transactions;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\UserAccounts;
+use App\Enum\TransactionsType;
 
-class TakeOutAmount {
+class TakeOutAmountService {
 
     private EntityManagerInterface $em;
     private UserAccountsRepository $accountsRepository;
@@ -46,6 +47,7 @@ class TakeOutAmount {
         $account->setBalance($account->getBalance() - $amount);
 
         $transaction = new Transactions();
+        $transaction->setType(TransactionsType::TAKEOUTAMOUNT);
         $transaction->setFromUser($account);
         $transaction->setToUser($account);
         $transaction->setAmount(-$amount);

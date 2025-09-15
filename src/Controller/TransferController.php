@@ -43,6 +43,19 @@ class TransferController extends AbstractController {
         $toDocument = $data['to_document'];
         $amount = (float) $data['amount'];
 
+        // Validar se os documentos contêm apenas números
+        if (!preg_match('/^\d+$/', $fromDocument)) {
+            return new JsonResponse([
+                'error' => 'Documento do remetente deve conter apenas caracteres numéricos'
+            ], 400);
+        }
+
+        if (!preg_match('/^\d+$/', $toDocument)) {
+            return new JsonResponse([
+                'error' => 'Documento do destinatário deve conter apenas caracteres numéricos'
+            ], 400);
+        }
+
         try {
             $fromUser = $this->userAccountsRepository->findByDocument($fromDocument);
 
@@ -72,6 +85,13 @@ class TransferController extends AbstractController {
     #[Route('/api/transfers/{document}', name: 'list_user_transactions', methods: ['GET'])]
     public function listUserTransactions(string $document, Request $request): JsonResponse
     {
+        // Validar se o documento contém apenas números
+        if (!preg_match('/^\d+$/', $document)) {
+            return new JsonResponse([
+                'error' => 'Documento deve conter apenas caracteres numéricos'
+            ], 400);
+        }
+
         // Pega paginação da query string (default: page=1, limit=10)
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = min(50, (int) $request->query->get('limit', 10)); // limite de segurança

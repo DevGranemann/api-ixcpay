@@ -31,6 +31,13 @@ class UserAccountController extends AbstractController {
             ], 400);
         }
 
+        // Validar se o documento contém apenas números
+        if (!preg_match('/^\d+$/', $data['document'])) {
+            return new JsonResponse([
+                'Error' => 'Documento deve conter apenas caracteres numéricos'
+            ], 400);
+        }
+
         $user = new UserAccounts();
         $user->setUserType($data['user_type']);
         $user->setFullName($data['full_name']);

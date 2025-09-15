@@ -6,6 +6,7 @@ use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserAccountsRepository::class)]
 #[UniqueEntity(fields: ['document'], message: 'Já existe uma conta registrada com este CPF/CNPJ.')]
@@ -24,6 +25,10 @@ class UserAccounts
     private ?string $full_name = null;
 
     #[ORM\Column(length: 14, unique: true)]
+    #[Assert\Regex(
+        pattern: '/^\d+$/',
+        message: 'O documento deve conter apenas caracteres numéricos'
+    )]
     private ?string $document = null;
 
     #[ORM\Column(length: 100, unique: true)]

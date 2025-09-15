@@ -53,7 +53,7 @@ class TransferService {
             throw new \Exception("Saldo insuficiente.");
         }
 
-        // validação externa antes de debitar
+        // validação externa
         $approved = $this->externalValidation->validateTransaction($amount, TransactionsType::TRANSFER->value);
         if (!$approved) {
             throw new \Exception("Transação reprovada pelo validador externo");
@@ -78,7 +78,7 @@ class TransferService {
 
             $this->em->commit();
 
-            // notificar remetente e destinatário
+            // notifica
             try {
                 $this->notifier->notifyTransfer(
                     $fromUserAccounts->getEmail(),

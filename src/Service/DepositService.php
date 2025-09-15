@@ -6,7 +6,7 @@ use App\Entity\Transactions;
 use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Enum\TransactionsType;
+use App\Enums\TransactionsType;
 
 class DepositService
 {

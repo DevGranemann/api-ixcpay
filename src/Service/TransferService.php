@@ -6,7 +6,7 @@ use App\Entity\Transactions;
 use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Enum\TransactionsType;
+use App\Enums\TransactionsType;
 class TransferService {
 
     private EntityManagerInterface $em;
@@ -53,6 +53,7 @@ class TransferService {
 
             $this->em->persist($fromUserAccounts);
             $this->em->persist($toUser);
+            $this->em->persist($transaction);
             $this->em->flush();
 
             $this->em->commit();

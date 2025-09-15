@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DepositController extends AbstractController {
 
-    #[Route('api/deposit', name: 'deposit', methods: ['POST'])]
+    #[Route('/api/deposit', name: 'deposit', methods: ['POST'])]
     public function deposit(Request $request, DepositService $depositService): JsonResponse{
 
         $data = json_decode($request->getContent(), true);

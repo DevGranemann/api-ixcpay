@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TransactionsRepository;
 use Doctrine\ORM\Mapping as ORM;
-use App\Enum\TransactionsType;
+use App\Enums\TransactionsType;
 
 #[ORM\Entity(repositoryClass: TransactionsRepository::class)]
 class Transactions

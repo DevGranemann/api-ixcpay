@@ -28,7 +28,7 @@ class TransferController extends AbstractController {
         $this->userAccountsRepository = $userAccountsRepository;
     }
 
-    #[Route('api/transfers', name: 'make_transfer', methods: 'POST')]
+    #[Route('/api/transfers', name: 'make_transfer', methods: ['POST'])]
     public function transfer(Request $request, EntityManagerInterface $em): JsonResponse{
 
         $data = json_decode($request->getContent(), true);

@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class UserAccountController extends AbstractController {
 
-    #[Route('api/useraccounts', name: 'create_user_account', methods:'POST')]
+    #[Route('/api/useraccounts', name: 'create_user_account', methods: ['POST'])]
     public function createUserAccount(
         Request $request,
         EntityManagerInterface $em): JsonResponse{

@@ -6,7 +6,7 @@ use App\Entity\Transactions;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\UserAccounts;
-use App\Enum\TransactionsType;
+use App\Enums\TransactionsType;
 
 class TakeOutAmountService {
 
@@ -36,7 +36,7 @@ class TakeOutAmountService {
         /** @var UserAccounts|null $account */
         $account = $this->accountsRepository->find($accountId);
 
-        if (!$accountId) {
+        if (!$account) {
             throw new \Exception("Conta não encontrada");
         }
 
@@ -50,7 +50,7 @@ class TakeOutAmountService {
         $transaction->setType(TransactionsType::TAKEOUTAMOUNT);
         $transaction->setFromUser($account);
         $transaction->setToUser($account);
-        $transaction->setAmount(-$amount);
+        $transaction->setAmount($amount);
 
         $this->em->persist($account);
         $this->em->persist($transaction);

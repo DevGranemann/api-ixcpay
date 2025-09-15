@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TakeOutAmountController extends AbstractController {
 
-    #[Route('api/takeoutvalue', name: 'take_out_value', methods: ['POST'])]
+    #[Route('/api/takeoutvalue', name: 'take_out_value', methods: ['POST'])]
     public function takeOutValue(Request $request, TakeOutAmountService $takeOutAmount): JsonResponse{
 
         $data = json_decode($request->getContent(), true);

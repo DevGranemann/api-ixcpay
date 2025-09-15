@@ -11,3 +11,34 @@ config/secrets/prod/prod.decrypt.private.php
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Composer vendors
+/vendor/
+/api-ixcpay/vendor/
+
+# Symfony cache/logs
+/api-ixcpay/var/
+
+# Symfony env files
+/api-ixcpay/.env.local
+/api-ixcpay/.env.*.local
+/api-ixcpay/.env.php
+/api-ixcpay/.env.test.local
+
+# Frontend/node (if any)
+/api-ixcpay/node_modules/
+
+# Symfony assets build
+/api-ixcpay/public/bundles/
+
+# PHPUnit cache
+/api-ixcpay/.phpunit.result.cache
+

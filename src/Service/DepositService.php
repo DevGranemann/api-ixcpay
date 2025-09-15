@@ -7,6 +7,7 @@ use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Enums\TransactionsType;
+use App\Service\Notification\NotificationServiceInterface;
 
 class DepositService
 {
@@ -14,13 +15,15 @@ class DepositService
     private UserAccountsRepository $accountsRepository;
     private ExternalValidationService $externalValidation;
     private ReversalService $reversalService;
+    private NotificationServiceInterface $notifier;
 
-    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService)
+    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService, NotificationServiceInterface $notifier)
     {
         $this->em = $em;
         $this->accountsRepository = $accountsRepository;
         $this->externalValidation = $externalValidation;
         $this->reversalService = $reversalService;
+        $this->notifier = $notifier;
     }
 
     /**
@@ -67,8 +70,20 @@ class DepositService
             $this->em->flush();
 
             $this->em->commit();
+
+            // notificação
+            try {
+                $this->notifier->notifyAccountOperation(
+                    $account->getEmail(),
+                    'deposit',
+                    $amount,
+                    $account->getDocument()
+                );
+            } catch (\Throwable) {
+                // mock: ignora
+            }
+
             return $transaction;
-            
         } catch (\Throwable $e) {
             $this->em->rollback();
             throw $e;

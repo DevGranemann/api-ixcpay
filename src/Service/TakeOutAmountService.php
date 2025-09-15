@@ -7,6 +7,7 @@ use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\UserAccounts;
 use App\Enums\TransactionsType;
+use App\Service\Notification\NotificationServiceInterface;
 
 class TakeOutAmountService {
 
@@ -14,13 +15,15 @@ class TakeOutAmountService {
     private UserAccountsRepository $accountsRepository;
     private ExternalValidationService $externalValidation;
     private ReversalService $reversalService;
+    private NotificationServiceInterface $notifier;
 
-    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService)
+    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService, NotificationServiceInterface $notifier)
     {
         $this->em = $em;
         $this->accountsRepository = $accountsRepository;
         $this->externalValidation = $externalValidation;
         $this->reversalService = $reversalService;
+        $this->notifier = $notifier;
     }
 
     /**
@@ -48,6 +51,7 @@ class TakeOutAmountService {
             throw new \Exception("Saldo insuficiente para realizar o saque");
         }
 
+        // validação externa
         $approved = $this->externalValidation->validateTransaction($amount, TransactionsType::TAKEOUTAMOUNT->value);
         if (!$approved) {
             throw new \Exception("Transação reprovada pelo validador externo");
@@ -68,8 +72,20 @@ class TakeOutAmountService {
             $this->em->flush();
 
             $this->em->commit();
+
+            // notificação
+            try {
+                $this->notifier->notifyAccountOperation(
+                    $account->getEmail(),
+                    'withdraw',
+                    $amount,
+                    $account->getDocument()
+                );
+            } catch (\Throwable) {
+                // mock
+            }
+
             return $transaction;
-            
         } catch (\Throwable $e) {
             $this->em->rollback();
             throw new \Exception("Falha ao processar saque: " . $e->getMessage());

@@ -7,18 +7,21 @@ use App\Entity\UserAccounts;
 use App\Repository\UserAccountsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Enums\TransactionsType;
+use App\Service\Notification\NotificationServiceInterface;
 class TransferService {
 
     private EntityManagerInterface $em;
     private UserAccountsRepository $userAccountsRepository;
     private ExternalValidationService $externalValidation;
     private ReversalService $reversalService;
+    private NotificationServiceInterface $notifier;
 
-    public function __construct(EntityManagerInterface $em, UserAccountsRepository $userAccountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService) {
+    public function __construct(EntityManagerInterface $em, UserAccountsRepository $userAccountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService, NotificationServiceInterface $notifier) {
         $this->em = $em;
         $this->userAccountsRepository = $userAccountsRepository;
         $this->externalValidation = $externalValidation;
         $this->reversalService = $reversalService;
+        $this->notifier = $notifier;
     }
 
     /**
@@ -74,6 +77,19 @@ class TransferService {
             $this->em->flush();
 
             $this->em->commit();
+
+            // notificar remetente e destinatário
+            try {
+                $this->notifier->notifyTransfer(
+                    $fromUserAccounts->getEmail(),
+                    $toUser->getEmail(),
+                    $amount,
+                    $fromUserAccounts->getDocument(),
+                    $toUser->getDocument()
+                );
+            } catch (\Throwable) {
+                // ignorar
+            }
 
         } catch (\Throwable $e) {
             $this->em->rollback();

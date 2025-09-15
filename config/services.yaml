@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    notification.logfile: '%kernel.project_dir%/var/log/notifications.log'
 
 services:
     # default configuration for services in *this* file
@@ -15,6 +16,14 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+
+    # Notification mock binding
+    App\Service\Notification\NotificationServiceInterface: '@App\Service\Notification\MockNotificationService'
+
+    App\Service\Notification\MockNotificationService:
+        arguments:
+            $logFile: '%notification.logfile%'
+
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

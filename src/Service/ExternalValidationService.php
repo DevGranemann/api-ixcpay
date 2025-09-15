@@ -6,11 +6,11 @@ class ExternalValidationService {
 
     /**
      *
-     * Pode aprovar ou reprovar de forma aleatória
+     * Aleatório
      */
     public function validateTransaction(float $amount, string $type): bool
     {
-        // Exemplo simples: reprova valores acima de 5000
+        // acima de 5000 reprova
         if ($amount > 5000) {
             return false;
         }

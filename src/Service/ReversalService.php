@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Transactions;
-use App\Enum\TransactionsType;
+use App\Enums\TransactionsType;
 use App\Repository\TransactionsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 

@@ -12,11 +12,15 @@ class DepositService
 {
     private EntityManagerInterface $em;
     private UserAccountsRepository $accountsRepository;
+    private ExternalValidationService $externalValidation;
+    private ReversalService $reversalService;
 
-    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository)
+    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService)
     {
         $this->em = $em;
         $this->accountsRepository = $accountsRepository;
+        $this->externalValidation = $externalValidation;
+        $this->reversalService = $reversalService;
     }
 
     /**
@@ -41,19 +45,33 @@ class DepositService
             throw new \Exception("Conta não encontrada");
         }
 
-        $account->setBalance($account->getBalance() + $amount);
+        // Validação externa
+        $approved = $this->externalValidation->validateTransaction($amount, TransactionsType::DEPOSIT->value);
+        if (!$approved) {
+            throw new \Exception("Transação reprovada pelo validador externo");
+        }
 
-        // Registro
-        $transaction = new Transactions();
-        $transaction->setFromUser($account);
-        $transaction->setToUser($account);
-        $transaction->setAmount($amount);
-        $transaction->setType(TransactionsType::DEPOSIT);
+        $this->em->beginTransaction();
+        try {
+            $account->setBalance($account->getBalance() + $amount);
 
-        $this->em->persist($account);
-        $this->em->persist($transaction);
-        $this->em->flush();
+            // Registro
+            $transaction = new Transactions();
+            $transaction->setFromUser($account);
+            $transaction->setToUser($account);
+            $transaction->setAmount($amount);
+            $transaction->setType(TransactionsType::DEPOSIT);
 
-        return $transaction;
+            $this->em->persist($account);
+            $this->em->persist($transaction);
+            $this->em->flush();
+
+            $this->em->commit();
+            return $transaction;
+            
+        } catch (\Throwable $e) {
+            $this->em->rollback();
+            throw $e;
+        }
     }
 }

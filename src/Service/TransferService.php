@@ -11,10 +11,14 @@ class TransferService {
 
     private EntityManagerInterface $em;
     private UserAccountsRepository $userAccountsRepository;
+    private ExternalValidationService $externalValidation;
+    private ReversalService $reversalService;
 
-    public function __construct(EntityManagerInterface $em, UserAccountsRepository $userAccountsRepository) {
+    public function __construct(EntityManagerInterface $em, UserAccountsRepository $userAccountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService) {
         $this->em = $em;
         $this->userAccountsRepository = $userAccountsRepository;
+        $this->externalValidation = $externalValidation;
+        $this->reversalService = $reversalService;
     }
 
     /**
@@ -38,13 +42,26 @@ class TransferService {
             throw new \Exception("Este usuário não pode realizar transações desta natureza.");
         }
 
+        if ($amount <= 0) {
+            throw new \Exception("O valor da transferência deve ser maior do que 0");
+        }
+
+        if ($fromUserAccounts->getBalance() < $amount) {
+            throw new \Exception("Saldo insuficiente.");
+        }
+
+        // validação externa antes de debitar
+        $approved = $this->externalValidation->validateTransaction($amount, TransactionsType::TRANSFER->value);
+        if (!$approved) {
+            throw new \Exception("Transação reprovada pelo validador externo");
+        }
+
         $this->em->beginTransaction();
 
         try {
             $fromUserAccounts->debit($amount);
             $toUser->credit($amount);
 
-            // para armazenar no banco
             $transaction = new Transactions();
             $transaction->setType(TransactionsType::TRANSFER);
             $transaction->setFromUser($fromUserAccounts);

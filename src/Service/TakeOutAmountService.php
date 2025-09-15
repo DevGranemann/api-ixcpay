@@ -12,11 +12,15 @@ class TakeOutAmountService {
 
     private EntityManagerInterface $em;
     private UserAccountsRepository $accountsRepository;
+    private ExternalValidationService $externalValidation;
+    private ReversalService $reversalService;
 
-    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository)
+    public function __construct(EntityManagerInterface $em, UserAccountsRepository $accountsRepository, ExternalValidationService $externalValidation, ReversalService $reversalService)
     {
         $this->em = $em;
         $this->accountsRepository = $accountsRepository;
+        $this->externalValidation = $externalValidation;
+        $this->reversalService = $reversalService;
     }
 
     /**
@@ -44,19 +48,32 @@ class TakeOutAmountService {
             throw new \Exception("Saldo insuficiente para realizar o saque");
         }
 
-        $account->setBalance($account->getBalance() - $amount);
+        $approved = $this->externalValidation->validateTransaction($amount, TransactionsType::TAKEOUTAMOUNT->value);
+        if (!$approved) {
+            throw new \Exception("Transação reprovada pelo validador externo");
+        }
 
-        $transaction = new Transactions();
-        $transaction->setType(TransactionsType::TAKEOUTAMOUNT);
-        $transaction->setFromUser($account);
-        $transaction->setToUser($account);
-        $transaction->setAmount($amount);
+        $this->em->beginTransaction();
+        try {
+            $account->setBalance($account->getBalance() - $amount);
 
-        $this->em->persist($account);
-        $this->em->persist($transaction);
-        $this->em->flush();
+            $transaction = new Transactions();
+            $transaction->setType(TransactionsType::TAKEOUTAMOUNT);
+            $transaction->setFromUser($account);
+            $transaction->setToUser($account);
+            $transaction->setAmount($amount);
 
-        return $transaction;
+            $this->em->persist($account);
+            $this->em->persist($transaction);
+            $this->em->flush();
+
+            $this->em->commit();
+            return $transaction;
+            
+        } catch (\Throwable $e) {
+            $this->em->rollback();
+            throw new \Exception("Falha ao processar saque: " . $e->getMessage());
+        }
     }
 
 }

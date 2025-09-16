@@ -101,16 +101,24 @@ class TransferServiceTest extends TestCase
         $this->externalValidation->method('validateTransaction')->willReturn(true);
 
         // Mockando EntityManager (simular persistência e transação)
-        $this->em->expects($this->once())->method('persist');
         $this->em->expects($this->once())->method('flush');
 
+        $persistCallIndex = 0;
         $this->em->expects($this->exactly(3))
             ->method('persist')
-            ->withConsecutive(
-                [$this->isInstanceOf(UserAccounts::class)],
-                [$this->isInstanceOf(UserAccounts::class)],
-                [$this->isInstanceOf(Transactions::class)]
-            );
+            ->with($this->callback(function ($entity) use (&$persistCallIndex) {
+                $persistCallIndex++;
+                if ($persistCallIndex === 1) {
+                    return $entity instanceof UserAccounts;
+                }
+                if ($persistCallIndex === 2) {
+                    return $entity instanceof UserAccounts;
+                }
+                if ($persistCallIndex === 3) {
+                    return $entity instanceof Transactions;
+                }
+                return false;
+            }));
 
 
         $this->transferService->transfer($fromUser, $toUser->getDocument(), 100);

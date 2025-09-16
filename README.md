@@ -171,17 +171,11 @@ vendor/bin/phpunit
 ```
 Arquivo relevante: `tests/Service/TransferServiceTest.php`.
 
-## Problemas comuns
-- "Access denied for user" ao criar/usar o banco: revise `DATABASE_URL` no `.env.local`.
-- Erros de migrations: confirme MySQL 8 (`serverVersion=8.0`) e banco existente.
-- Porta ocupada: altere a porta (ex.: `php -S 127.0.0.1:8085 -t public`).
-
 ## Docker (opcional)
-Existem `Dockerfile` e `docker-compose.yml`, mas o uso requer virtualização ativa (BIOS/UEFI), WSL2 e Docker Desktop. Após atender os requisitos:
+Existem `Dockerfile` e `docker-compose.yml`, mas o uso requer virtualização ativa (BIOS/UEFI), não possuo tal configuração em minha máquina, WSL2 e Docker Desktop. Após atender os requisitos:
 ```bash
 docker compose up -d --build
 ```
 Depois rode as migrations e acesse `http://localhost:8084`.
 
----
-Em caso de dúvida, informe a mensagem de erro e o passo executado para suporte.
+

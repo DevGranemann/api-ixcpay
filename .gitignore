@@ -2,6 +2,7 @@
 ###> symfony/framework-bundle ###
 .editorconfig
 .env
+.env.test
 .env.dev
 .env.local
 .env.local.php
@@ -11,3 +12,8 @@ config/secrets/prod/prod.decrypt.private.php
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

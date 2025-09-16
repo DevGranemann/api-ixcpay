@@ -43,11 +43,19 @@ php bin/console doctrine:database:create --if-not-exists
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-4) Suba o servidor embutido do PHP
+4) Suba o servidor local com Symfony CLI (recomendado)
 ```bash
-php -S 127.0.0.1:8084 -t public
+# foreground
+symfony serve --no-tls --port=8084
+
+# ou em background (daemon)
+symfony serve -d --no-tls --port=8084
+
+# para parar
+symfony local:server:stop --dir=.
 ```
 Acesse: `http://localhost:8084`
+Observação: um 404 para `favicon.ico` no log pode aparecer e é esperado; não afeta a UI.
 
 ## Endpoints
 Todas as rotas aceitam e retornam JSON.
@@ -178,4 +186,19 @@ docker compose up -d --build
 ```
 Depois rode as migrations e acesse `http://localhost:8084`.
 
+## Documentação automática (Swagger / OpenAPI)
+Este projeto usa NelmioApiDocBundle para gerar a documentação da API.
 
+Rota da documentação (Swagger UI):
+- `http://localhost:8084/api/docs`
+
+Caso ainda não tenha instalado (já incluso no projeto):
+```bash
+composer require nelmio/api-doc-bundle:^4.22 --no-interaction
+```
+Arquivos relevantes:
+- `config/packages/nelmio_api_doc.yaml`: configura título/servidor/áreas
+- `config/routes.yaml`: registra a rota `/api/docs`
+
+---
+Em caso de dúvida, informe a mensagem de erro e o passo executado para suporte.

@@ -7,10 +7,33 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Attributes as OA;
 
 class TakeOutAmountController extends AbstractController {
 
     #[Route('/api/takeoutvalue', name: 'take_out_value', methods: ['POST'])]
+    #[OA\Tag(name: 'Withdrawals')]
+    #[OA\Post(
+        summary: 'Realiza um saque em uma conta',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    type: 'object',
+                    required: ['accountId','amount'],
+                    properties: [
+                        new OA\Property(property: 'accountId', type: 'integer', example: 1),
+                        new OA\Property(property: 'amount', type: 'number', format: 'float', example: 50)
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Saque realizado com sucesso'),
+            new OA\Response(response: 400, description: 'Parâmetros inválidos ou erro de negócio')
+        ]
+    )]
     public function takeOutValue(Request $request, TakeOutAmountService $takeOutAmount): JsonResponse{
 
         $data = json_decode($request->getContent(), true);

@@ -1,0 +1,11 @@
+nelmio_api_doc:
+  documentation:
+    info:
+      title: "API IXC Pay"
+      description: "Documentação da API IXC Pay (OpenAPI/Swagger)"
+      version: "1.0.0"
+    servers:
+      - url: "http://localhost:8084"
+  areas:
+    path_patterns:
+      - ^/api(?!/docs$)

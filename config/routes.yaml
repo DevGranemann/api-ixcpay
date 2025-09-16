@@ -3,3 +3,8 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# Swagger UI (NelmioApiDocBundle)
+nelmio_api_doc:
+    path: /api/docs
+    controller: nelmio_api_doc.controller.swagger_ui

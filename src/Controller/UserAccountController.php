@@ -9,10 +9,36 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 
 class UserAccountController extends AbstractController {
 
     #[Route('/api/useraccounts', name: 'create_user_account', methods: ['POST'])]
+    #[OA\Tag(name: 'Users')]
+    #[OA\Post(
+        summary: 'Cria uma conta de usuário',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    type: 'object',
+                    required: ['user_type','full_name','document','email','password'],
+                    properties: [
+                        new OA\Property(property: 'user_type', type: 'string', example: 'PF'),
+                        new OA\Property(property: 'full_name', type: 'string', example: 'Fulano de Tal'),
+                        new OA\Property(property: 'document', type: 'string', example: '12345678901', description: 'Apenas dígitos'),
+                        new OA\Property(property: 'email', type: 'string', format: 'email', example: 'fulano@example.com'),
+                        new OA\Property(property: 'password', type: 'string', example: 'senha')
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Conta criada com sucesso'),
+            new OA\Response(response: 400, description: 'Validação falhou')
+        ]
+    )]
     public function createUserAccount(
         Request $request,
         EntityManagerInterface $em): JsonResponse{
@@ -80,6 +106,15 @@ class UserAccountController extends AbstractController {
     }
 
     #[Route('/api/useraccounts/{id}', name: 'get_user_account', methods: ['GET'])]
+    #[OA\Tag(name: 'Users')]
+    #[OA\Get(
+        summary: 'Obtém dados de uma conta por ID',
+        parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        responses: [
+            new OA\Response(response: 200, description: 'Dados da conta'),
+            new OA\Response(response: 404, description: 'Conta não encontrada')
+        ]
+    )]
     public function getUserAccount(int $id, UserAccountsRepository $userRepo): JsonResponse
     {
         $userAccount = $userRepo->find($id);

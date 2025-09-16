@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\TransactionsRepository;
+use OpenApi\Attributes as OA;
 
 class TransferController extends AbstractController {
 
@@ -29,6 +30,46 @@ class TransferController extends AbstractController {
     }
 
     #[Route('/api/transfers', name: 'make_transfer', methods: ['POST'])]
+    #[OA\Tag(name: 'Transfers')]
+    #[OA\Post(
+        summary: 'Realiza uma transferência entre usuários (CPF → CPF/CNPJ)',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    type: 'object',
+                    required: ['from_document','to_document','amount'],
+                    properties: [
+                        new OA\Property(property: 'from_document', type: 'string', example: '12345678901', description: 'Documento do remetente (apenas dígitos)'),
+                        new OA\Property(property: 'to_document', type: 'string', example: '98765432100', description: 'Documento do destinatário (apenas dígitos)'),
+                        new OA\Property(property: 'amount', type: 'number', format: 'float', example: 100)
+                    ]
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Transferência realizada com sucesso',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'message', type: 'string'),
+                            new OA\Property(property: 'from', type: 'string'),
+                            new OA\Property(property: 'to', type: 'string'),
+                            new OA\Property(property: 'amount', type: 'number', format: 'float'),
+                            new OA\Property(property: 'timestamp', type: 'string', example: '2025-09-16 12:00:00')
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: 400, description: 'Erro de validação ou negócio'),
+            new OA\Response(response: 404, description: 'Usuário remetente não encontrado')
+        ]
+    )]
     public function transfer(Request $request, EntityManagerInterface $em): JsonResponse{
 
         $data = json_decode($request->getContent(), true);
@@ -83,6 +124,49 @@ class TransferController extends AbstractController {
     }
 
     #[Route('/api/transfers/{document}', name: 'list_user_transactions', methods: ['GET'])]
+    #[OA\Tag(name: 'Transfers')]
+    #[OA\Get(
+        summary: 'Lista transações de um usuário (paginado)',
+        parameters: [
+            new OA\Parameter(name: 'document', in: 'path', required: true, schema: new OA\Schema(type: 'string'), description: 'Documento do usuário (apenas dígitos)'),
+            new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1, minimum: 1)),
+            new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 10, maximum: 50))
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Lista de transações',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'page', type: 'integer'),
+                            new OA\Property(property: 'limit', type: 'integer'),
+                            new OA\Property(property: 'total', type: 'integer'),
+                            new OA\Property(property: 'pages', type: 'integer'),
+                            new OA\Property(
+                                property: 'transactions',
+                                type: 'array',
+                                items: new OA\Items(
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer'),
+                                        new OA\Property(property: 'from', type: 'string'),
+                                        new OA\Property(property: 'to', type: 'string'),
+                                        new OA\Property(property: 'amount', type: 'number', format: 'float'),
+                                        new OA\Property(property: 'createdAt', type: 'string'),
+                                        new OA\Property(property: 'direction', type: 'string', enum: ['incoming','outgoing'])
+                                    ]
+                                )
+                            )
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: 400, description: 'Documento inválido')
+        ]
+    )]
     public function listUserTransactions(string $document, Request $request): JsonResponse
     {
         // Validar se o documento contém apenas números

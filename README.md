@@ -201,4 +201,3 @@ Arquivos relevantes:
 - `config/routes.yaml`: registra a rota `/api/docs`
 
 ---
-Em caso de dúvida, informe a mensagem de erro e o passo executado para suporte.
